@@ -62,6 +62,31 @@ const AnalysisDetail = ({ failure, analysis, onBack }) => {
                 <p className="text-gray-900 mt-1">{failure.scenario}</p>
               </div>
 
+              {failure.feature && (
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Feature File</label>
+                  <p className="text-gray-900 mt-1 font-mono text-xs bg-blue-50 p-2 rounded border border-blue-200">
+                    {failure.feature}
+                  </p>
+                </div>
+              )}
+
+              {failure.tags && failure.tags.length > 0 && (
+                <div>
+                  <label className="text-sm font-medium text-gray-600 mb-2 block">Tags</label>
+                  <div className="flex flex-wrap gap-2">
+                    {failure.tags.map((tag, idx) => (
+                      <span
+                        key={idx}
+                        className="px-2 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded border border-purple-200"
+                      >
+                        @{tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div>
                 <label className="text-sm font-medium text-gray-600">Error Type</label>
                 <p className="text-gray-900 mt-1 font-mono text-sm bg-gray-50 p-2 rounded">

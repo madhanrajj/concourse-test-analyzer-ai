@@ -41,7 +41,10 @@ class LogParser {
       successRate: 0
     };
 
-    // Parse scenario summary: "25 scenarios (1 failed, 24 passed)"
+    // Parse scenario summary (handle multiple formats)
+    // Format 1: "25 scenarios (1 failed, 24 passed)"
+    // Format 2: "1 failed\n24 passed\n25 executed"
+    
     const scenarioMatch = logContent.match(/(\d+)\s+scenarios?\s*\(([^)]+)\)/i);
     if (scenarioMatch) {
       metrics.totalScenarios = parseInt(scenarioMatch[1]);
@@ -50,6 +53,15 @@ class LogParser {
       const failedMatch = details.match(/(\d+)\s+failed/);
       const passedMatch = details.match(/(\d+)\s+passed/);
       
+      if (failedMatch) metrics.failedScenarios = parseInt(failedMatch[1]);
+      if (passedMatch) metrics.passedScenarios = parseInt(passedMatch[1]);
+    } else {
+      // Try alternative format with separate lines
+      const failedMatch = logContent.match(/(\d+)\s+failed/i);
+      const passedMatch = logContent.match(/(\d+)\s+passed/i);
+      const executedMatch = logContent.match(/(\d+)\s+executed/i);
+      
+      if (executedMatch) metrics.totalScenarios = parseInt(executedMatch[1]);
       if (failedMatch) metrics.failedScenarios = parseInt(failedMatch[1]);
       if (passedMatch) metrics.passedScenarios = parseInt(passedMatch[1]);
     }
@@ -67,11 +79,24 @@ class LogParser {
       if (passedMatch) metrics.passedSteps = parseInt(passedMatch[1]);
     }
 
-    // Parse duration: "0m54.214s"
+    // Parse duration (handle multiple formats)
+    // Format 1: "0m54.214s"
+    // Format 2: "duration\n54 seconds"
+    
     const durationMatch = logContent.match(/(\d+m[\d.]+s)/);
     if (durationMatch) {
       metrics.duration = durationMatch[1];
       metrics.durationSeconds = this.parseDuration(durationMatch[1]);
+    } else {
+      // Try alternative format
+      const secondsMatch = logContent.match(/duration[:\s]+(\d+)\s+seconds?/i);
+      if (secondsMatch) {
+        const seconds = parseInt(secondsMatch[1]);
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        metrics.duration = minutes > 0 ? `${minutes}m${remainingSeconds}s` : `${seconds}s`;
+        metrics.durationSeconds = seconds;
+      }
     }
 
     // Calculate success rate
@@ -88,16 +113,30 @@ class LogParser {
   static extractFailures(lines) {
     const failures = [];
     let currentFailure = null;
+    let currentFeature = '';
+    let currentTags = [];
     let collectingError = false;
     let collectingStackTrace = false;
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
 
-      // Start of a scenario
-      if (line.startsWith('Scenario:')) {
+      // Feature file path (features/ama_incident.feature)
+      if (line.match(/^features?\/[\w_-]+\.feature/i)) {
+        currentFeature = line;
+      }
+
+      // Tags (@product_ama, @TMTC0005119, etc.)
+      if (line.startsWith('@')) {
+        currentTags = line.split('@').filter(t => t.trim()).map(t => t.trim());
+      }
+
+      // Start of a scenario (handle both "Scenario:" and variations)
+      if (line.match(/^Scenario:/i)) {
         currentFailure = {
-          scenario: line.replace('Scenario:', '').trim(),
+          scenario: line.replace(/^Scenario:/i, '').trim(),
+          feature: currentFeature,
+          tags: [...currentTags],
           errorType: '',
           expected: '',
           received: '',
@@ -107,40 +146,71 @@ class LogParser {
         };
         collectingError = false;
         collectingStackTrace = false;
+        currentTags = []; // Reset tags after scenario
       }
 
-      // Error line
-      if (line.startsWith('Error:') && currentFailure) {
+      // Error line (handle both "Error:" and "Error expect(received).toBe(expected)")
+      if (line.startsWith('Error') && currentFailure) {
         collectingError = true;
-        currentFailure.errorMessage = line.replace('Error:', '').trim();
+        
+        // Handle "Error expect(received).toBe(expected) // Object.is equality"
+        if (line.includes('expect(')) {
+          currentFailure.errorMessage = line.replace(/^Error\s*/, '').trim();
+        } else {
+          // Handle "Error: message"
+          currentFailure.errorMessage = line.replace('Error:', '').trim();
+        }
         
         // Determine error type
-        if (currentFailure.errorMessage.includes('expect')) {
+        if (currentFailure.errorMessage.includes('expect') || currentFailure.errorMessage.includes('toBe') || 
+            currentFailure.errorMessage.includes('toEqual') || currentFailure.errorMessage.includes('toMatch')) {
           currentFailure.errorType = 'Assertion Error';
         } else if (currentFailure.errorMessage.includes('timeout')) {
           currentFailure.errorType = 'Timeout';
         } else if (currentFailure.errorMessage.includes('ECONNREFUSED') || currentFailure.errorMessage.includes('ENOTFOUND')) {
           currentFailure.errorType = 'API Error';
+        } else if (currentFailure.errorMessage.includes('403') || currentFailure.errorMessage.includes('Forbidden') || 
+                   currentFailure.errorMessage.includes('401') || currentFailure.errorMessage.includes('Unauthorized')) {
+          currentFailure.errorType = 'Authorization Error';
         } else {
           currentFailure.errorType = 'Runtime Error';
         }
       }
 
-      // Expected value
+      // Expected value (handle multi-line format)
       if (line.startsWith('Expected:') && currentFailure) {
-        currentFailure.expected = line.replace('Expected:', '').trim().replace(/^["']|["']$/g, '');
+        const expectedValue = line.replace('Expected:', '').trim().replace(/^["']|["']$/g, '');
+        currentFailure.expected = expectedValue;
       }
 
-      // Received value
+      // Received value (handle multi-line format)
       if (line.startsWith('Received:') && currentFailure) {
-        currentFailure.received = line.replace('Received:', '').trim().replace(/^["']|["']$/g, '');
+        const receivedValue = line.replace('Received:', '').trim().replace(/^["']|["']$/g, '');
+        currentFailure.received = receivedValue;
       }
 
-      // File location with line number
-      if (line.match(/at\s+[\w/.]+:\d+:\d+/) && currentFailure) {
-        const locationMatch = line.match(/at\s+([\w/.]+):(\d+):(\d+)/);
+      // File location with line number (handle multiple formats)
+      // Format 1: "at /tmp/build/edac63b5/ama-incident-api-lower-env/features/stepDefinitions/incident_validation.js:513:25"
+      // Format 2: "at features/stepDefinitions/incident_validation.js:513:25"
+      // Format 3: "at CustomWorld.<anonymous> (/path/file.js:513:25)"
+      if (line.includes('at ') && currentFailure && !currentFailure.location) {
+        // Try format with full path in parentheses
+        let locationMatch = line.match(/at\s+.*?\(([^\s]+):(\d+):(\d+)\)/);
+        if (!locationMatch) {
+          // Try simple format
+          locationMatch = line.match(/at\s+([^\s(]+):(\d+):(\d+)/);
+        }
+        
         if (locationMatch) {
-          currentFailure.location = locationMatch[1];
+          let fullPath = locationMatch[1];
+          // Extract just the relevant part of the path (after build directory or features/)
+          const pathParts = fullPath.split('/');
+          const featuresIndex = pathParts.findIndex(p => p === 'features' || p === 'stepDefinitions');
+          if (featuresIndex !== -1) {
+            fullPath = pathParts.slice(featuresIndex).join('/');
+          }
+          
+          currentFailure.location = fullPath;
           currentFailure.line = parseInt(locationMatch[2]);
           currentFailure.column = parseInt(locationMatch[3]);
           collectingStackTrace = true;

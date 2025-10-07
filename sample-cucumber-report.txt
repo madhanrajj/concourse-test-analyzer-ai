@@ -1,0 +1,59 @@
+1 failed
+24 passed
+25 executed
+96% passed
+last run
+2 hours ago
+duration
+54 seconds
+linux
+node.js 18.20.4
+cucumber-js 10.9.0
+
+features/ama_incident.feature
+@product_ama@persona_general@interface_api@Regression_AMA_API_Incident_Flow
+Feature: AMA Incident Flow Testing
+
+@TMTC0005102
+Scenario: AMA - INC API - Verify successful creation of INC
+Given Auth token is generated
+When incident creation payload for the CI "ATL-S00781-CO" is sent
+When Verify the response code is "201"
+Then an incident is created successfully
+
+@TMTC0005103
+Scenario: AMA - INC API - Validate successful addition of Incident Attributes
+Given Add the Attributes to the incident
+When Verify the response code is "200"
+Then The attributes are added successfully
+
+features/ama_negative_validation.feature
+@product_ama@persona_general@interface_api
+Feature: AMA Incident - Negative Validation Testing
+
+@TMTC0005119@Regression_AMA_Forbidden_Error
+Scenario: AMA - INC API - Negative Scenario - Validate Forbidden error response
+Given Incident creation payload with no scope
+When Verify the response code is "403"
+Then The incident creation fails with forbidden error message
+Error expect(received).toBe(expected) // Object.is equality
+
+Expected: "User is not authorized to access this resource with an explicit deny"
+Received: "User is not authorized to access this resource with an explicit deny in an identity-based policy"
+    at CustomWorld.<anonymous> (/tmp/build/edac63b5/ama-incident-api-lower-env/features/stepDefinitions/incident_validation.js:513:25)
+
+@TMTC0005121@Regression_AMA_Blank_Fields_Error
+Scenario: AMA - INC API - Negative Flow - Validate error message when required fields are left blank
+Given Get incident with required fields left blank
+When Verify the response code is "400"
+Then Verify the error message for blank required fields
+
+features/ama_negative_worknotes.feature
+@product_ama@persona_general@interface_api
+Feature: AMA Incident - Worknotes Negative Testing
+
+@TMTC0005123@Regression_AMA_Worknotes_Blank_Fields_Error
+Scenario: AMA - INC API - Negative Flow - Validate error message when Worknotes required fields are left blank
+Given Get Work Notes to the incident with required fields left blank
+When Verify the response code is "400"
+Then Verify the error message for blank required fields in Work Notes

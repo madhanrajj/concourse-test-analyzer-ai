@@ -301,31 +301,50 @@ After implementation, teams can expect:
 
 ---
 
-## Latest Updates (v1.1.0)
+## Latest Updates
 
-### 🆕 Enhanced File Upload Experience
+### v1.2.0 (2024-10-07) - Cucumber Format Support
+
+#### 🆕 Structured Report Parsing
+- ✅ **Feature file tracking** - Displays which feature file contains the failure
+- ✅ **Tag extraction** - Shows @tags from Cucumber reports (e.g., @TMTC0005119, @Regression_AMA)
+- ✅ **Multiple format support** - Handles both simple and structured Cucumber outputs
+- ✅ **Enhanced error detection** - Detects Authorization Error, Assertion Error, API Error
+- ✅ **Better path parsing** - Cleans long build paths to show relevant portions
+
+#### 🎨 UI Enhancements
+- ✅ **Purple tag badges** - Visual display of test tags
+- ✅ **Blue feature badges** - Shows feature file with folder icon
+- ✅ **Tag preview** - Shows up to 3 tags with "+X more" indicator
+- ✅ **Enhanced failure cards** - Richer context with tags and features
+
+### v1.1.0 (2024-10-07) - Enhanced File Loading
+
+#### 🆕 Enhanced File Upload Experience
 - ✅ Drag-and-drop with animated visual feedback
 - ✅ Instant file preview before analysis
 - ✅ Editable content in preview mode
 - ✅ Character and line count display
 - ✅ Clear/reset functionality
 
-### 🆕 S3 Preview Mode
+#### 🆕 S3 Preview Mode
 - ✅ New "Load & Preview" option
 - ✅ Review S3 content before analysis
 - ✅ Edit fetched content if needed
 - ✅ Separate endpoint for loading vs. analyzing
 
-### 📚 Enhanced Documentation
-- ✅ FEATURE_UPDATE.md - Complete feature guide
-- ✅ Updated README with new workflows
-- ✅ Updated API documentation
+### v1.0.0 (2024-10-07) - Initial Release
+- ✅ Complete backend API with AI integration
+- ✅ React frontend with TailwindCSS
+- ✅ Dashboard, analysis, and export features
+- ✅ Docker support
+- ✅ Comprehensive documentation
 
 ---
 
 **Built with ❤️ using React, Node.js, Express, TailwindCSS, OpenAI, and Anthropic Claude**
 
-*This project represents a complete, production-ready Phase 1+ implementation of an AI-powered test automation analysis system with enhanced file loading and preview capabilities.*
+*This project represents a complete, production-ready implementation of an AI-powered test automation analysis system with enhanced file loading, preview capabilities, and Cucumber report support.*
 
-**Version**: 1.1.0  
+**Version**: 1.2.0  
 **Last Updated**: 2024-10-07

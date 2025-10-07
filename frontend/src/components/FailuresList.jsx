@@ -133,6 +133,30 @@ const FailuresList = ({ data, onFailureSelect }) => {
                   {item.failure.scenario}
                 </h3>
 
+                {item.failure.feature && (
+                  <p className="text-xs text-gray-500 mb-2 font-mono">
+                    📂 {item.failure.feature}
+                  </p>
+                )}
+
+                {item.failure.tags && item.failure.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mb-2">
+                    {item.failure.tags.slice(0, 3).map((tag, idx) => (
+                      <span
+                        key={idx}
+                        className="px-2 py-0.5 bg-purple-50 text-purple-700 text-xs rounded border border-purple-200"
+                      >
+                        @{tag}
+                      </span>
+                    ))}
+                    {item.failure.tags.length > 3 && (
+                      <span className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded">
+                        +{item.failure.tags.length - 3} more
+                      </span>
+                    )}
+                  </div>
+                )}
+
                 <p className="text-sm text-gray-600 mb-2">
                   <span className="font-medium">Root Cause:</span> {item.analysis.rootCause}
                 </p>
