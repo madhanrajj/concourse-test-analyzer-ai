@@ -24,7 +24,7 @@ router.post('/', async (req, res) => {
 
     // Analyze failures with AI
     const aiAnalyzer = new AIAnalyzer();
-    const analyses = await aiAnalyzer.analyzeFailures(parsedData.failures);
+    const failureAnalyses = await aiAnalyzer.analyzeFailures(parsedData.failures);
 
     // Create analysis record
     const analysisId = analysisIdCounter++;
@@ -33,13 +33,13 @@ router.post('/', async (req, res) => {
       timestamp: new Date().toISOString(),
       metrics: parsedData.metrics,
       failures: parsedData.failures,
-      analyses: analyses,
+      analyses: failureAnalyses,
       summary: {
         totalIssues: parsedData.failures.length,
-        criticalIssues: analyses.filter(a => a.analysis.severity === 'Critical').length,
-        highIssues: analyses.filter(a => a.analysis.severity === 'High').length,
-        testIssues: analyses.filter(a => a.analysis.isTestIssue).length,
-        appIssues: analyses.filter(a => !a.analysis.isTestIssue).length
+        criticalIssues: failureAnalyses.filter(a => a.analysis.severity === 'Critical').length,
+        highIssues: failureAnalyses.filter(a => a.analysis.severity === 'High').length,
+        testIssues: failureAnalyses.filter(a => a.analysis.isTestIssue).length,
+        appIssues: failureAnalyses.filter(a => !a.analysis.isTestIssue).length
       }
     };
 
