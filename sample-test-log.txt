@@ -1,0 +1,61 @@
+25 scenarios (1 failed, 24 passed)
+70 steps (1 failed, 69 passed)
+0m54.214s
+
+Scenario: AMA - INC API - Positive Scenario - Validate successful incident creation
+  ✓ Given I have valid API credentials
+  ✓ When I send a POST request to create an incident
+  ✓ Then the response status should be 201
+  ✓ And the incident should be created successfully
+
+Scenario: AMA - INC API - Positive Scenario - Validate incident retrieval
+  ✓ Given I have a valid incident ID
+  ✓ When I send a GET request to retrieve the incident
+  ✓ Then the response status should be 200
+  ✓ And the incident details should match the created incident
+
+Scenario: AMA - INC API - Negative Scenario - Validate Forbidden error response
+  ✓ Given I have API credentials with restricted access
+  ✓ When I send a request to a restricted resource
+  ✗ Then the error message should match expected format
+  Error: expect(received).toBe(expected)
+  Expected: "User is not authorized to access this resource with an explicit deny"
+  Received: "User is not authorized to access this resource with an explicit deny in an identity-based policy"
+  at features/stepDefinitions/incident_validation.js:513:25
+  at processTicksAndRejections (node:internal/process/task_queues:95:5)
+
+Scenario: AMA - INC API - Positive Scenario - Validate incident update
+  ✓ Given I have a valid incident ID
+  ✓ When I send a PATCH request to update the incident
+  ✓ Then the response status should be 200
+  ✓ And the incident should be updated successfully
+
+Scenario: AMA - INC API - Positive Scenario - Validate incident deletion
+  ✓ Given I have a valid incident ID
+  ✓ When I send a DELETE request to delete the incident
+  ✓ Then the response status should be 204
+  ✓ And the incident should be deleted
+
+Scenario: AMA - INC API - Positive Scenario - Validate incident list retrieval
+  ✓ Given I have valid API credentials
+  ✓ When I send a GET request to list incidents
+  ✓ Then the response status should be 200
+  ✓ And the response should contain a list of incidents
+
+Scenario: AMA - INC API - Validation - Check required fields
+  ✓ Given I have API credentials
+  ✓ When I send a POST request without required fields
+  ✓ Then the response status should be 400
+  ✓ And the error message should indicate missing fields
+
+Scenario: AMA - INC API - Performance - Response time validation
+  ✓ Given I have valid API credentials
+  ✓ When I send multiple concurrent requests
+  ✓ Then all responses should be received within acceptable time
+  ✓ And no requests should timeout
+
+Scenario: AMA - INC API - Security - Validate authentication
+  ✓ Given I have no API credentials
+  ✓ When I send a request without authentication
+  ✓ Then the response status should be 401
+  ✓ And the error message should indicate authentication failure
