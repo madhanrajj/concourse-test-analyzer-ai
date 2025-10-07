@@ -52,6 +52,28 @@ List all analyses.
 
 ### S3 Endpoints
 
+#### `POST /api/s3/load`
+Load file content from S3 without analysis (for preview).
+
+**Request Body:**
+```json
+{
+  "bucket": "my-bucket",
+  "key": "path/to/test-results.txt"
+}
+```
+
+**Response:**
+```json
+{
+  "content": "file content...",
+  "bucket": "my-bucket",
+  "key": "path/to/test-results.txt",
+  "size": 1234,
+  "lines": 45
+}
+```
+
 #### `POST /api/s3/fetch`
 Fetch test results from S3 and analyze.
 

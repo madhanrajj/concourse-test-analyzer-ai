@@ -8,8 +8,9 @@ A full-stack application that uses AI to analyze failed tests and provide intell
 - **AI-Powered Insights**: Get root cause analysis, impact assessment, and solutions from OpenAI or Claude
 - **Multiple Input Methods**: 
   - Paste log content directly
-  - Upload test log files
-  - Fetch results from AWS S3
+  - Upload test log files with **drag-and-drop** support
+  - **Load & preview** files before analysis
+  - Fetch results from AWS S3 with preview option
 - **Comprehensive Dashboard**: Visual metrics showing pass/fail rates, duration, and success rates
 - **Detailed Failure Analysis**: 
   - Categorized by severity (Critical, High, Medium, Low)
@@ -111,14 +112,18 @@ Make sure both backend and frontend are running:
 - Click "Analyze Logs"
 
 **Option B: Upload File**
-- Click the upload area
-- Select your test log file (.txt or .log)
-- Click "Analyze File"
+- **Drag and drop** your test log file onto the upload zone, OR
+- Click the upload area to browse and select a file
+- **Preview** the file content (edit if needed)
+- Click "Analyze File Content"
 
 **Option C: Fetch from S3**
 - Enter your S3 bucket name (optional, uses default)
 - Enter the object key (path to the file)
-- Click "Fetch and Analyze"
+- Choose:
+  - **"Load & Preview"** - Review content before analysis
+  - **"Fetch & Analyze"** - Direct analysis
+- Click "Analyze S3 Content" (if previewing)
 
 ### 3. View Results
 
@@ -174,6 +179,14 @@ Scenario: AMA - INC API - Negative Scenario - Validate Forbidden error response
 - `GET /api/analyze/:id` - Get analysis by ID
 
 - `GET /api/analyze` - List all analyses
+
+- `POST /api/s3/load` - Load S3 content for preview (no analysis)
+  ```json
+  {
+    "bucket": "my-bucket",
+    "key": "path/to/file.txt"
+  }
+  ```
 
 - `POST /api/s3/fetch` - Fetch and analyze from S3
   ```json

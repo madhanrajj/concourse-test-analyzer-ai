@@ -97,6 +97,46 @@ router.post('/list', async (req, res) => {
 });
 
 /**
+ * POST /api/s3/load
+ * Load file content from S3 without analysis (for preview)
+ */
+router.post('/load', async (req, res) => {
+  try {
+    const { bucket, key } = req.body;
+
+    if (!key) {
+      return res.status(400).json({ error: 'S3 key is required' });
+    }
+
+    const s3Client = new S3Client();
+
+    if (!s3Client.isConfigured()) {
+      return res.status(503).json({ 
+        error: 'S3 is not configured',
+        details: 'AWS credentials are missing in environment variables'
+      });
+    }
+
+    // Fetch file from S3 (without analysis)
+    const logContent = await s3Client.fetchFile(bucket, key);
+
+    res.json({
+      content: logContent,
+      bucket: bucket || process.env.S3_BUCKET,
+      key: key,
+      size: logContent.length,
+      lines: logContent.split('\n').length
+    });
+  } catch (error) {
+    console.error('S3 load error:', error);
+    res.status(500).json({ 
+      error: 'Failed to load from S3',
+      details: error.message 
+    });
+  }
+});
+
+/**
  * GET /api/s3/status
  * Check S3 configuration status
  */

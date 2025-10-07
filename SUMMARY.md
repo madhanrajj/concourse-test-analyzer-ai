@@ -91,8 +91,10 @@ A complete, production-ready full-stack application that uses artificial intelli
 
 ### 6. Multiple Input Methods
 - **Paste**: Quick analysis of copied logs
-- **Upload**: Drag-and-drop file support
+- **Upload**: Enhanced drag-and-drop with instant preview
+- **File Preview**: Load and edit files before analysis
 - **S3 Fetch**: Direct integration with AWS
+- **S3 Preview**: Load S3 content for review before analysis
 
 ## Technical Specifications
 
@@ -121,19 +123,20 @@ A complete, production-ready full-stack application that uses artificial intelli
 ## File Count
 - **Backend Files**: 10 (server, routes, utils, config)
 - **Frontend Files**: 12 (components, pages, config)
-- **Documentation**: 7 files
+- **Documentation**: 8 files
 - **Configuration**: 6 files
-- **Total**: ~35 files
+- **Total**: ~36 files
 
 ## Lines of Code (Approximate)
-- **Backend**: ~1,300 lines
-- **Frontend**: ~1,500 lines
-- **Total Code**: ~2,800 lines
-- **Documentation**: ~2,000 lines
-- **Grand Total**: ~4,800 lines
+- **Backend**: ~1,400 lines (+100 for S3 preview endpoint)
+- **Frontend**: ~1,700 lines (+200 for preview features)
+- **Total Code**: ~3,100 lines
+- **Documentation**: ~2,500 lines (+500 for feature docs)
+- **Grand Total**: ~5,600 lines
 
 ## How It Works
 
+### Standard Flow
 ```
 1. User uploads test log (paste/file/S3)
           ↓
@@ -154,6 +157,19 @@ A complete, production-ready full-stack application that uses artificial intelli
    - Detailed AI recommendations
           ↓
 6. User exports report for team/leadership
+```
+
+### Enhanced Preview Flow (NEW)
+```
+1. User drags/drops file OR enters S3 path
+          ↓
+2. File content loads instantly in UI
+          ↓
+3. User reviews/edits content
+          ↓
+4. User clicks "Analyze"
+          ↓
+5. Same analysis flow as above
 ```
 
 ## Deployment Options
@@ -200,11 +216,19 @@ A complete, production-ready full-stack application that uses artificial intelli
    - Paste content from `sample-test-log.txt`
    - Click "Analyze Logs"
 
-3. **File Upload**
-   - Upload `sample-test-log.txt`
-   - View AI analysis
+3. **File Upload with Preview (NEW ✨)**
+   - **Drag and drop** `sample-test-log.txt` onto the upload zone
+   - Watch the **animated border** and instant preview
+   - Edit content if needed
+   - Click "Analyze File Content"
 
-4. **Export Report**
+4. **S3 Load & Preview (NEW ✨)**
+   - Go to S3 tab
+   - Enter bucket and key
+   - Click "Load & Preview"
+   - Review content before analyzing
+
+5. **Export Report**
    - After analysis, click "Export JSON" or "Export Report"
 
 ## AI Provider Flexibility
@@ -277,6 +301,31 @@ After implementation, teams can expect:
 
 ---
 
+## Latest Updates (v1.1.0)
+
+### 🆕 Enhanced File Upload Experience
+- ✅ Drag-and-drop with animated visual feedback
+- ✅ Instant file preview before analysis
+- ✅ Editable content in preview mode
+- ✅ Character and line count display
+- ✅ Clear/reset functionality
+
+### 🆕 S3 Preview Mode
+- ✅ New "Load & Preview" option
+- ✅ Review S3 content before analysis
+- ✅ Edit fetched content if needed
+- ✅ Separate endpoint for loading vs. analyzing
+
+### 📚 Enhanced Documentation
+- ✅ FEATURE_UPDATE.md - Complete feature guide
+- ✅ Updated README with new workflows
+- ✅ Updated API documentation
+
+---
+
 **Built with ❤️ using React, Node.js, Express, TailwindCSS, OpenAI, and Anthropic Claude**
 
-*This project represents a complete, production-ready Phase 1 implementation of an AI-powered test automation analysis system.*
+*This project represents a complete, production-ready Phase 1+ implementation of an AI-powered test automation analysis system with enhanced file loading and preview capabilities.*
+
+**Version**: 1.1.0  
+**Last Updated**: 2024-10-07
